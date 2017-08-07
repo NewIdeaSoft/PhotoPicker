@@ -8,14 +8,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 
 import java.io.File;
@@ -28,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> mFolderPathList;
     private Button mMenuButton;
     private Button mDownButton;
+    private DrawerLayout mDrawerLayout;
+    private ListView mListView;
+    private ArrayAdapter<String> mFolderAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPicked() {
                 ArrayList<String> imageList = mAdapter.getCheckedImageUrlList();
-                if (imageList.size()>0){
-                    mDownButton.setText("完成（已选"+imageList.size()+"张）");
+                if (imageList.size() > 0) {
+                    mDownButton.setText("完成（已选" + imageList.size() + "张）");
                 }
             }
         });
@@ -67,12 +74,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ArrayList<String> imageList = mAdapter.getCheckedImageUrlList();
+                Log.e("PhotoPicker:", imageList.size() + "");
                 Intent data = new Intent();
                 data.putExtra("picked_images", imageList);
                 setResult(RESULT_OK, data);
                 finish();
             }
         });
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.photo_picker_drawer_layout);
+        mListView = (ListView) findViewById(R.id.photo_picker_menu);
+        mFolderAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mFolderPathList) {
+            @Nullable
+            @Override
+            public String getItem(int position) {
+                if (position == 0) {
+                    return "所有图片";
+                }
+                String path = super.getItem(position-1);
+                File file = new File(path);
+                String name = file.getName();
+                if (name.contains("Camera")) {
+                    return "相机";
+                }
+                return name;
+            }
+        };
+        mListView.setAdapter(mFolderAdapter);
     }
 
     private void setImageUrlList() {
@@ -88,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 MediaStore.Images.Media.MIME_TYPE + "=? or "
                         + MediaStore.Images.Media.MIME_TYPE + "=?",
                 new String[]{"image/jpeg", "image/png"},
-                MediaStore.Images.Media.DATE_MODIFIED);
+                MediaStore.Images.Media.DATE_MODIFIED + " desc");
         while (mCursor.moveToNext()) {
             // 获取图片的路径
             String path = mCursor.getString(mCursor
@@ -96,11 +123,12 @@ public class MainActivity extends AppCompatActivity {
             mImageUrlList.add(path);
             File imageFile = new File(path);
             String dirPath = imageFile.getParent();
-            if (dirPath != null && mFolderPathList.indexOf(dirPath) <= 0) {
+            if (dirPath != null && mFolderPathList.indexOf(dirPath) == -1) {
                 mFolderPathList.add(dirPath);
+                Log.e("dirPath", dirPath);
+                Log.e("mFolderPathList", mFolderPathList.size() + "");
             }
-            Log.e("TAG", path);
         }
-    }
 
+    }
 }

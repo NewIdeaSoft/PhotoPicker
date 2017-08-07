@@ -1,13 +1,12 @@
 package com.nisoft.photopicker;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 
 import com.bumptech.glide.Glide;
 
@@ -37,29 +36,29 @@ public class PhotoPickerAdapter extends RecyclerView.Adapter<PhotoPickerAdapter.
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = View.inflate(mContext, R.layout.photo_item, null);
-        final ViewHolder holder = new ViewHolder(view);
-        holder.mPhotoImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.mCheckRadioButton.setChecked(!holder.mCheckRadioButton.isChecked());
-                mOnImagePicked.onPicked();
-            }
-        });
-        holder.mCheckRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                holder.mCheckRadioButton.setChecked(!holder.mCheckRadioButton.isChecked());
-                mOnImagePicked.onPicked();
-            }
-        });
+        ViewHolder holder = new ViewHolder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.e("adapter",mImageUrlList.get(position).getImageUrl());
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         Glide.with(mContext).load(mImageUrlList.get(position).getImageUrl()).centerCrop().into(holder.mPhotoImageView);
-        holder.mCheckRadioButton.setChecked(mImageUrlList.get(position).isChecked());
+        holder.mCheckBox.setChecked(mImageUrlList.get(position).isChecked());
+        holder.mPhotoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.mCheckBox.setChecked(!holder.mCheckBox.isChecked());
+
+            }
+        });
+
+        holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mImageUrlList.get(position).setChecked(isChecked);
+                mOnImagePicked.onPicked();
+            }
+        });
     }
 
     @Override
@@ -78,12 +77,12 @@ public class PhotoPickerAdapter extends RecyclerView.Adapter<PhotoPickerAdapter.
     }
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView mPhotoImageView;
-        RadioButton mCheckRadioButton;
+        CheckBox mCheckBox;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mPhotoImageView = (ImageView) itemView.findViewById(R.id.iv_photo);
-            mCheckRadioButton = (RadioButton) itemView.findViewById(R.id.rbtn_picker);
+            mCheckBox = (CheckBox) itemView.findViewById(R.id.rbtn_picker);
         }
     }
     class Image{
