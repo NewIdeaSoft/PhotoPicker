@@ -19,16 +19,19 @@ import java.util.ArrayList;
 
 public class PhotoPickerAdapter extends RecyclerView.Adapter<PhotoPickerAdapter.ViewHolder> {
     private ArrayList<Image> mImageUrlList;
-
+    private OnImagePicked mOnImagePicked;
     private Context mContext;
-
-    public PhotoPickerAdapter(ArrayList<String> imageUrlList, Context context) {
+    public interface OnImagePicked{
+        void onPicked();
+    }
+    public PhotoPickerAdapter(ArrayList<String> imageUrlList, Context context,OnImagePicked imagePicked) {
         mImageUrlList = new ArrayList<>();
         for (String url :
                 imageUrlList) {
             mImageUrlList.add(new Image(url, false));
         }
         mContext = context;
+        mOnImagePicked = imagePicked;
     }
 
     @Override
@@ -39,6 +42,14 @@ public class PhotoPickerAdapter extends RecyclerView.Adapter<PhotoPickerAdapter.
             @Override
             public void onClick(View v) {
                 holder.mCheckRadioButton.setChecked(!holder.mCheckRadioButton.isChecked());
+                mOnImagePicked.onPicked();
+            }
+        });
+        holder.mCheckRadioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.mCheckRadioButton.setChecked(!holder.mCheckRadioButton.isChecked());
+                mOnImagePicked.onPicked();
             }
         });
         return holder;
