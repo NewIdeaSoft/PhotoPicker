@@ -11,16 +11,20 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+
+import com.nisoft.photopicker.util.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -67,7 +71,11 @@ public class MainActivity extends AppCompatActivity {
         mMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawers();
+                } else {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
             }
         });
         mDownButton.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.photo_picker_drawer_layout);
         mListView = (ListView) findViewById(R.id.photo_picker_menu);
         mFolderAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mFolderPathList) {
+            @Override
+            public int getCount() {
+                return super.getCount()+1;
+            }
+
             @Nullable
             @Override
             public String getItem(int position) {
@@ -92,14 +105,23 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String path = super.getItem(position-1);
                 File file = new File(path);
-                String name = file.getName();
-                if (name.contains("Camera")) {
-                    return "相机";
-                }
-                return name;
+                return file.getName();
             }
         };
         mListView.setAdapter(mFolderAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position==0){
+                    setImageUrlList();
+                }else{
+                    String path = mFolderPathList.get(position-1);
+                    mImageUrlList = FileUtil.getAllImagesName(path);
+                }
+                mDrawerLayout.closeDrawers();
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void setImageUrlList() {
@@ -125,10 +147,7 @@ public class MainActivity extends AppCompatActivity {
             String dirPath = imageFile.getParent();
             if (dirPath != null && mFolderPathList.indexOf(dirPath) == -1) {
                 mFolderPathList.add(dirPath);
-                Log.e("dirPath", dirPath);
-                Log.e("mFolderPathList", mFolderPathList.size() + "");
             }
         }
-
     }
 }
