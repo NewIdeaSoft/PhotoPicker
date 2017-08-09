@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -22,9 +24,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 import com.nisoft.photopicker.util.FileUtil;
+import com.nisoft.photopicker.view.GridItemDecoration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> mFolderPathList;
     private Button mMenuButton;
     private Button mDownButton;
+    private TextView mPickedCountTextView;
     private DrawerLayout mDrawerLayout;
     private ListView mListView;
     private ArrayAdapter<String> mFolderAdapter;
@@ -58,14 +63,18 @@ public class MainActivity extends AppCompatActivity {
             public void onPicked() {
                 ArrayList<String> imageList = mAdapter.getCheckedImageUrlList();
                 if (imageList.size() > 0) {
-                    mDownButton.setText("完成（已选" + imageList.size() + "张）");
+                    mPickedCountTextView.setText("已选" + imageList.size() + "张");
+                }else{
+                    mPickedCountTextView.setText("点击选择照片");
                 }
             }
         });
         mPhotoPickerRecyclerView = (RecyclerView) findViewById(R.id.rv_photo_picker);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        GridLayoutManager layoutManager = new GridLayoutManager(this,3);
         mPhotoPickerRecyclerView.setLayoutManager(layoutManager);
         mPhotoPickerRecyclerView.setAdapter(mAdapter);
+        GridItemDecoration itemDecoration = new GridItemDecoration(Color.RED);
+        mPhotoPickerRecyclerView.addItemDecoration(itemDecoration);
         mMenuButton = (Button) findViewById(R.id.btn_menu);
         mDownButton = (Button) findViewById(R.id.btn_down);
         mMenuButton.setOnClickListener(new View.OnClickListener() {
@@ -117,11 +126,15 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     String path = mFolderPathList.get(position-1);
                     mImageUrlList = FileUtil.getAllImagesName(path);
+                    for (int i = 0; i < mImageUrlList.size(); i++) {
+                        mImageUrlList.set(i,path+"/"+mImageUrlList.get(i));
+                    }
                 }
                 mDrawerLayout.closeDrawers();
-                mAdapter.notifyDataSetChanged();
+                mAdapter.resetData(mImageUrlList);
             }
         });
+        mPickedCountTextView = (TextView) findViewById(R.id.tv_picked_count);
     }
 
     private void setImageUrlList() {

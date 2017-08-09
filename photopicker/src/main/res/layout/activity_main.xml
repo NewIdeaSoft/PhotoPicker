@@ -13,31 +13,42 @@
             android:id="@+id/titleBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary">
+            android:background="@color/colorPrimary">
             <Button
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:background="@mipmap/ic_launcher"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/ic_btn_menu"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"
                 android:id="@+id/btn_menu"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@id/btn_menu"
+                android:layout_centerVertical="true"
                 android:text="选择照片"
                 android:textColor="#ffffff"
                 android:textSize="16sp"/>
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_alignParentEnd="true"
+                android:layout_marginEnd="8dp"
                 android:layout_centerVertical="true"
-                android:layout_gravity="end|center_vertical"
-                android:background="@color/colorAccent"
-                android:text="完成"
-                android:textSize="16sp"
+                android:background="@drawable/ic_btn_check"
                 android:id="@+id/btn_down"/>
+            <TextView
+                android:id="@+id/tv_picked_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_toLeftOf="@id/btn_down"
+                android:layout_centerVertical="true"
+                android:text="点击选择照片"
+                android:textColor="#ffffff"
+                android:textSize="12sp"/>
         </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView

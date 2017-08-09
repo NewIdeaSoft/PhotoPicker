@@ -20,6 +20,16 @@ public class PhotoPickerAdapter extends RecyclerView.Adapter<PhotoPickerAdapter.
     private ArrayList<Image> mImageUrlList;
     private OnImagePicked mOnImagePicked;
     private Context mContext;
+
+    public void resetData(ArrayList<String> imageUrlList) {
+        mImageUrlList = new ArrayList<>();
+        for (String url :
+                imageUrlList) {
+            mImageUrlList.add(new Image(url, false));
+        }
+        this.notifyDataSetChanged();
+    }
+
     public interface OnImagePicked{
         void onPicked();
     }
